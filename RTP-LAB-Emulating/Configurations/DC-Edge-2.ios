@@ -1,0 +1,224 @@
+DC-Edge-2#sh run
+Building configuration...
+
+Current configuration : 2884 bytes
+!
+version 15.7
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname DC-Edge-2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$E9NY$HUsvjDzrP3p98znia1hk.1
+!
+no aaa new-model
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip domain name ine.local
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username admin privilege 15 secret 5 $1$fFR0$m66mqKurSdKvfy6upDbCT.
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 150.255.1.2 255.255.255.255
+ ip ospf 1 area 0
+!
+interface Ethernet0/0
+ ip address 192.168.22.2 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf 1 area 51
+ duplex auto
+!
+interface Ethernet0/1
+ ip address 150.22.0.1 255.255.255.252
+ duplex auto
+!
+interface Ethernet0/2
+ ip address 150.22.1.1 255.255.255.254
+ ip ospf network point-to-point
+ ip ospf 1 area 0
+ duplex auto
+!
+interface Ethernet0/3
+ ip address 150.22.2.1 255.255.255.254
+ ip ospf network point-to-point
+ ip ospf 1 area 0
+ duplex auto
+!
+interface Ethernet1/0
+ ip address 10.22.0.1 255.255.255.252
+ duplex auto
+!
+interface Ethernet1/1
+ description TO DC-Edge-1
+ ip address 192.168.100.2 255.255.255.252
+ ip ospf network point-to-point
+ ip ospf 1 area 0
+ duplex auto
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet2/0
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet2/1
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet2/2
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet2/3
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet3/0
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet3/1
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet3/2
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet3/3
+ no ip address
+ shutdown
+ duplex auto
+!
+router ospf 1
+ router-id 150.255.1.2
+ redistribute connected subnets
+ redistribute bgp 12345 subnets
+ default-information originate always
+!
+router bgp 12345
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 10.22.0.2 remote-as 100
+ neighbor 150.22.0.2 remote-as 200
+ !
+ address-family ipv4
+  redistribute ospf 1 match internal external 1 external 2 nssa-external 1 nssa-external 2
+  neighbor 10.22.0.2 activate
+  neighbor 150.22.0.2 activate
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 ioam timestamp
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+banner exec ^C^C
+banner incoming ^C^C
+banner login ^C^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ transport preferred none
+line aux 0
+line vty 0 4
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport preferred none
+ transport input telnet ssh
+!
+!
+end
+
+DC-Edge-2#

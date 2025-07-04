@@ -1,0 +1,110 @@
+DC-SW1#sh run
+Building configuration...
+
+Current configuration : 1513 bytes
+!
+! Last configuration change at 18:21:37 UTC Thu Jul 3 2025
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname DC-SW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$N/4N$1N5D/QvHLtoGixpW8Egur/
+!
+username admin privilege 15 secret 5 $1$Ty.H$0zy6K.318PHZMcvZPuapV0
+no aaa new-model
+!
+!
+!         
+!
+!
+!
+!
+!
+no ip domain-lookup
+ip domain-name ine.local
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+! 
+!
+!
+!
+!
+!
+!         
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface Ethernet0/2
+ switchport access vlan 999
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet0/3
+ switchport access vlan 10
+ switchport mode access
+ spanning-tree portfast edge
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+banner exec ^C^C
+banner incoming ^C^C
+banner login ^C^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ transport preferred none
+line aux 0
+line vty 0 4
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport preferred none
+ transport input telnet ssh
+!
+!
+!
+end
+
+DC-SW1# 

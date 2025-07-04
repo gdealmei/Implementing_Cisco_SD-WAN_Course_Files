@@ -1,0 +1,136 @@
+SW101#sh run
+Building configuration...
+
+Current configuration : 1843 bytes
+!
+! Last configuration change at 20:51:40 UTC Thu Jul 3 2025
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname SW101
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$CIUe$PUgCD69Kp5PxXX1us.Hu..
+!
+username admin privilege 15 secret 5 $1$VVDN$gbNs05w14yfSl40QqzvFQ1
+no aaa new-model
+!
+!
+!
+!
+!
+vtp mode transparent
+!
+!
+!
+no ip domain-lookup
+ip domain-name ine.local
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+vlan 101
+ name PRIVATE_LAN
+!
+vlan 169
+ name EXTRANET
+!
+vlan 172
+ name GUEST
+!
+vlan 1010-1019 
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface Ethernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface Ethernet0/2
+ switchport access vlan 101
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet0/3
+ switchport access vlan 172
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/0
+ switchport access vlan 169
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/1
+ shutdown
+!
+interface Ethernet1/2
+ shutdown
+!
+interface Ethernet1/3
+ shutdown
+!
+ip forward-protocol nd
+!
+ip http server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+banner exec ^C^C
+banner incoming ^C^C
+banner login ^C^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ transport preferred none
+line aux 0
+line vty 0 4
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport preferred none
+ transport input telnet ssh
+!
+!
+!
+end
+
+SW101#

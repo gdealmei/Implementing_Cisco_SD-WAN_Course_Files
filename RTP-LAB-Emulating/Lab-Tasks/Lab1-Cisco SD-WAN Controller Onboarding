@@ -1,0 +1,107 @@
+### Task 1: Configure Initial CLI Options on Controllers
+
+- The vManage, vSmart, and vBond controllers all start with a blank configuration.
+- For each controller in the lab topology:
+    - Open the console and log in with the default credentials: `admin` / `admin`.
+    - Set the new admin password to `C1sc0123!`.
+- For the vManage node:
+    - Select both `COMPUTE_AND_DATA` roles.
+    - Use and format disk `vbd` during initial setup.
+    - Wait for the "System Ready" message before logging in again (this may take several minutes).
+- Configure the following basic settings on each controller from the CLI:
+
+| Host-name           | vManage-1        | vSmart-1         | vBond-1          |
+|---------------------|------------------|------------------|------------------|
+| System-ip           | 172.17.101.101   | 172.17.101.102   | 172.17.101.103   |
+| Site-id             | 1                | 1                | 1                |
+| Organization-name   | VIPTELA.local    | VIPTELA.local    | VIPTELA.local    |
+| vBond IP            | 150.1.1.103      | 150.1.1.103      | 150.1.1.103      |
+| VPN 0 Interface     | eth1             | eth1             | ge0/0            |
+| VPN 0 Interface IP  | 150.1.1.101/24   | 150.1.1.102/24   | 150.1.1.103/24   |
+| VPN 0 Tunnel Color  | biz-internet     | biz-internet     | biz-internet     |
+| VPN 0 Default GW    | 150.1.1.254      | 150.1.1.254      | 150.1.1.254      |
+| VPN 512 Interface   | eth0             | eth0             | eth0             |
+| VPN 512 Interface IP| 192.168.1.101/24 | 192.168.1.102/24 | 192.168.1.103/24 |
+| VPN 512 Default GW  | 192.168.1.254    | 192.168.1.254    | 192.168.1.254    |
+
+
+- Ensure that all possible services are allowed on the VPN 0 tunnel interface for vManage, vSmart, and vBond controllers.
+- After configuration, verify connectivity by pinging the default gateway from each controller in both VPN 0 and VPN 512.
+
+
+### Task 2: Configure the SD-WAN Controllers to trust the Root CA Certificate from the IOS-CA Server
+
+- The IOS-CA router is already set up as a PKI server and will serve as the Root CA for the SD-WAN environment.
+- From the MGMT-PC Windows GUI, open PuTTY and SSH to the IOS-CA router at `192.168.1.253` using the credentials `admin` / `C1sc0123!`.
+- Enter global configuration mode and export the Root CA certificate by running:
+    ```sh
+    crypto pki export IOS-CA pem terminal
+    ```
+- Copy the displayed certificate output for use in the next steps.
+
+
+```sh
+IOS-CA# config t
+Enter configuration commands, one per line.  End with CNTL/Z.
+IOS-CA(config)# crypto pki export IOS-CA pem terminal
+% The specified trustpoint is not enrolled (IOS-CA).
+% Only export the CA certificate in PEM format.
+% CA certificate:
+-----BEGIN CERTIFICATE-----
+MIIFADCCAuigAwIBAgIBATANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDEwZJT1Mt
+Q0EwHhcNMjAwMTAxMDAwODQ0WhcNNDAwMTAxMDAwODQ0WjARMQ8wDQYDVQQDEwZJ
+<snip>
+OxtRJJNGGY1nAwFc9NBfkfRYKlfvcEKnS8EnLkUMIxJw0+IF
+-----END CERTIFICATE-----
+
+IOS-CA(config)#
+```
+
+- Open Windows Notepad (or Notepad++ / Sublime Text), paste the Root CA Certificate, and save the file on the desktop as `root.crt`.
+- Use WinSCP to connect to each controller (vManage, vSmart, vBond) via their MGMT (VPN 512) IP addresses, and upload `root.crt` to the `/home/admin/` directory.
+- On each controller, install the Root CA Certificate with:
+    ```
+    request root-cert-chain install /home/admin/root.crt
+    ```
+    Example output:
+    ```
+    vManage-1# request root-cert-chain install /home/admin/root.crt
+    Uploading root-ca-cert-chain via VPN 0
+    Copying ... /home/admin/root.crt via VPN 0
+    Updating the root certificate chain..
+    Successfully installed the root certificate chain
+    vManage-1#
+    ```
+- In a web browser, access the vManage MGMT (VPN 512) IP address and log in as `admin` / `C1sc0123!`.
+- Go to **Administration > Settings** and set:
+    - Organization Name: `VIPTELA.local`
+    - vBond IP: `150.1.1.103`
+- Edit **Controller Certificate Authorization** to select **Enterprise Root Certificate**, paste the contents of `root.crt`, and click **Import & Save**.
+- Sync the new Root CA Certificate in the vManage database by browsing to:  
+    `https://192.168.1.101/dataservice/system/device/sync/rootcertchain`
+- When successful, vManage should return JSON data:  
+    `syncRootCertChain: "done"`
+
+### Task 3: Onboard the vBond & vSmart Controllers from vManage
+
+- In a web browser, access the vManage interface.
+- Click the hamburger icon in the upper left, then navigate to **Configuration > Devices**.
+- Click **Controllers** in the top middle, then select **Add Controller** to add the vSmart.
+    - Enter the vSmart's MGMT (VPN 512) IP address, username, and password.
+    - Check the **Generate CSR** box and click **Add**.
+- Repeat the process to add the vBond controller.
+- Go to **Configuration > Certificates**, click **Controllers** in the middle, and for the newly added vSmart, click the three dots on the right, select **View CSR** (or **Generate CSR** if blank), and copy the CSR to the clipboard.
+- Using PuTTY, SSH to the IOS-CA router and issue:
+    ```
+    crypto pki server IOS-CA request pkcs10 terminal
+    ```
+    - Paste the vSmart's CSR and press Enter as needed.
+    - Copy the returned certificate to the clipboard.
+- Back in vManage, under **Configuration > Certificates > Controllers**, click **Install Certificate** and paste the new vSmart certificate.
+- Repeat the above steps to view/generate the CSRs for vManage and vBond, request signing from the IOS-CA, and install their certificates.
+- In **Configuration > Certificates > Controllers**, click **Send to vBond** in the upper left to commit the changes.
+- Once complete, go to **Monitor > Overview** in vManage to verify that both vSmart and vBond are listed.
+- Note: If the devices do not appear after a few minutes, try rebooting the controllers from their CLI.
+
+
+Fim

@@ -1,0 +1,154 @@
+DC-ISP#sh run
+Building configuration...
+
+Current configuration : 1694 bytes
+!
+version 15.7
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname DC-ISP
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$bsit$9/2SoQOCYe93U1BIWnsv81
+!
+no aaa new-model
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip domain name ine.local
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username admin privilege 15 secret 5 $1$jbQ1$AK2jUJageBvqsdtFcNK1g0
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback1111
+ ip address 1.1.1.1 255.255.255.255
+!
+interface Loopback8888
+ ip address 8.8.8.8 255.255.255.255
+!
+interface Loopback9999
+ ip address 9.9.9.9 255.255.255.255
+!
+interface Ethernet0/0
+ ip address 10.9.9.9 255.255.255.0
+ duplex auto
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+ duplex auto
+!
+router bgp 999
+ bgp router-id 9.9.9.9
+ bgp log-neighbor-changes
+ bgp listen range 10.9.9.0/24 peer-group AS12345
+ redistribute connected
+ neighbor AS12345 peer-group
+ neighbor AS12345 remote-as 12345
+ neighbor AS12345 default-originate
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 ioam timestamp
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+banner exec ^C^C
+banner incoming ^C^C
+banner login ^C^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ transport preferred none
+line aux 0
+line vty 0 4
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport preferred none
+ transport input telnet ssh
+!
+!
+end

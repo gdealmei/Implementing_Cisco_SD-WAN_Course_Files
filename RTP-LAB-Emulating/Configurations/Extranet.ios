@@ -1,0 +1,150 @@
+Extranet#sh run
+Building configuration...
+
+Current configuration : 1529 bytes
+!
+version 15.7
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Extranet
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$MR57$C3UoCaYpYAG48nYnARNm6.
+!
+no aaa new-model
+!
+!
+!
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+no ip domain lookup
+ip domain name ine.local
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username admin privilege 15 secret 5 $1$6l52$W6g4Lj6klFpgCJ/5QZuVt.
+!
+redundancy
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback7777
+ ip address 7.7.7.7 255.255.255.255
+!
+interface Ethernet0/0
+ ip address 169.254.111.254 255.255.255.0
+ duplex auto
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+ duplex auto
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+ duplex auto
+!
+!
+router eigrp EXTRANET
+ !
+ address-family ipv4 unicast autonomous-system 65535
+  !
+  topology base
+  exit-af-topology
+  network 0.0.0.0
+  eigrp router-id 7.7.7.7
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 ioam timestamp
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+banner exec ^C^C
+banner incoming ^C^C
+banner login ^C^C
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ transport preferred none
+line aux 0
+line vty 0 4
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport preferred none
+ transport input telnet ssh
+!
+!
+end
