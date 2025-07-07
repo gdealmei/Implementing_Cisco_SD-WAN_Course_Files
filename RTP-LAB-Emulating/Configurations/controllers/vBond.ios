@@ -1,0 +1,82 @@
+vBond-1# sh run
+system
+ host-name               vBond-1
+ system-ip               172.17.101.103
+ site-id                 1
+ admin-tech-on-failure
+ no route-consistency-check
+ no vrrp-advt-with-phymac
+ sp-organization-name    VIPTELA.local
+ organization-name       VIPTELA.local
+ vbond 150.1.1.103 local
+ aaa
+  auth-order      local radius tacacs
+  usergroup basic
+   task system read
+   task interface read
+  !
+  usergroup netadmin
+  !
+  usergroup operator
+   task system read
+   task interface read
+   task policy read
+   task routing read
+   task security read
+  !
+  usergroup tenantadmin
+  !
+  user admin
+   password $6$36baf21d3a23976b$NYJlUUS48b3Bi1uz3r7PLOaeQ.I3axWeulVmFnmbOzbGKwdbkoA0XjPhAz2XO2KD.XqDbPXg9qo5Lm/TV1XNE.
+  !
+  user cisco
+   password $6$0270fb81b5b56c1e$LOaD1.Xj7zlP9TwMwZ5sMI1rtsU7b.TTtk3vetlfwVetEq7xmFkSvRCnsCn0rp14WYMC0ydfZtwiXNJL8mVr9/
+   group    netadmin
+  !
+  ciscotacro-user true
+  ciscotacrw-user true
+ !
+ logging
+  disk
+   enable
+  !
+ !
+ ntp
+  parent
+   no enable
+   stratum 5
+  exit
+ !
+!
+omp
+ no shutdown
+ graceful-restart
+!
+vpn 0
+ interface ge0/0
+  ip address 150.1.1.103/24
+  tunnel-interface
+   encapsulation ipsec
+   color biz-internet
+   allow-service all
+   no allow-service bgp
+   allow-service dhcp
+   allow-service dns
+   allow-service icmp
+   no allow-service sshd
+   no allow-service netconf
+   no allow-service ntp
+   no allow-service ospf
+   no allow-service stun
+   allow-service https
+  !
+  no shutdown
+ !
+ ip route 0.0.0.0/0 150.1.1.254
+!
+vpn 512
+ interface eth0
+  ip address 192.168.1.103/24
+  no shutdown
+ !
+!
