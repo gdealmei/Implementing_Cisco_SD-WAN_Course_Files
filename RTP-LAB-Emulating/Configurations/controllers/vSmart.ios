@@ -1,74 +1,18 @@
-vSmart-1# sh run
+
 system
  host-name             vSmart-1
  system-ip             172.17.101.102
  site-id               1
- admin-tech-on-failure
- no vrrp-advt-with-phymac
- sp-organization-name  VIPTELA.local
  organization-name     VIPTELA.local
  vbond 150.1.1.103
- aaa
-  auth-order      local radius tacacs
-  usergroup basic
-   task system read
-   task interface read
-  !
-  usergroup netadmin
-  !
-  usergroup operator
-   task system read
-   task interface read
-   task policy read
-   task routing read
-   task security read
-  !
-  usergroup tenantadmin
-  !
-  user admin
-   password $6$b75e86fca8f1ceb7$L4a0a9Q3Jc2V8OHgVNPw97gCFI2OG9AuzvS.XI.IzRLhFjU2Nheleg3gXm7wp9BZrgEEuc//u/fUuavBFj2Hj.
-  !
-  user cisco
-   password $6$0270fb81b5b56c1e$LOaD1.Xj7zlP9TwMwZ5sMI1rtsU7b.TTtk3vetlfwVetEq7xmFkSvRCnsCn0rp14WYMC0ydfZtwiXNJL8mVr9/
-   group    netadmin
-  !
-  ciscotacro-user true
-  ciscotacrw-user true
- !
- logging
-  disk
-   enable
-  !
- !
- ntp
-  parent
-   no enable
-   stratum 5
-  exit
- !
-!
-omp
- no shutdown
- filter-route
-  no outbound affinity-group-preference
-  no outbound tloc-color
- exit
- graceful-restart
- outbound-policy-caching
 !
 vpn 0
+ no interface eth0
  interface eth1
   ip address 150.1.1.102/24
   tunnel-interface
    color biz-internet
    allow-service all
-   allow-service dhcp
-   allow-service dns
-   allow-service icmp
-   no allow-service sshd
-   no allow-service netconf
-   no allow-service ntp
-   no allow-service stun
   !
   no shutdown
  !

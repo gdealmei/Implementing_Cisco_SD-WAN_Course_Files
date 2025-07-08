@@ -1,82 +1,17 @@
-vManage-1# sh run
 system
  host-name             vManage-1
  system-ip             172.17.101.101
  site-id               1
- admin-tech-on-failure
- no vrrp-advt-with-phymac
- sp-organization-name  VIPTELA.local
  organization-name     VIPTELA.local
  vbond 150.1.1.103
- aaa
-  auth-order      local radius tacacs
-  usergroup all
-  !
-  usergroup basic
-   task system read
-   task interface read
-  !
-  usergroup global
-  !
-  usergroup netadmin
-  !
-  usergroup network_operations
-   task system read
-   task interface read write
-   task policy read write
-   task routing read write
-  !
-  usergroup operator
-   task system read
-   task interface read
-   task policy read
-   task routing read
-   task security read
-  !
-  usergroup security_operations
-   task system read
-   task interface read
-   task routing read
-   task security read write
-  !
-  usergroup tenantadmin
-  !
-  user admin
-   password $6$78afbbfd74afe3ba$16EnnlXbnWvxEn5JJ2QS.kEPudLhX8dKw0NrpgTAR11n/B9W7hVLOh5FD0XWhDwuxJCZwt55ywToBIRKpbUB9/
-  !
-  ciscotacro-user true
-  ciscotacrw-user true
- !
- logging
-  disk
-   enable
-  !
- !
- ssh-server
-  cipher aes-128-192
-  kex-algo sha1
- !
- ntp
-  parent
-   no enable
-   stratum 5
-  exit
- !
-!
+
 vpn 0
+ no interface eth0
  interface eth1
   ip address 150.1.1.101/24
   tunnel-interface
    color biz-internet
    allow-service all
-   allow-service dhcp
-   allow-service dns
-   allow-service icmp
-   no allow-service sshd
-   no allow-service netconf
-   no allow-service ntp
-   no allow-service stun
-   allow-service https
   !
   no shutdown
  !
@@ -85,6 +20,10 @@ vpn 0
 vpn 512
  interface eth0
   ip address 192.168.1.101/24
+  no shutdown
+ !
+ interface eth2
+  ip dhcp-client
   no shutdown
  !
 !
